@@ -1,0 +1,134 @@
+#! /bin/sh
+# Copyright (c) 2008-2020 Robert Virding
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# The lfescript script.
+
+# Follow symlinks to actual program and set env variables.  We have to
+# cd to each directory following symlinks to handle relative symlinks.
+
+follow_symlink () {
+    cd "$(dirname "$1")" > /dev/null
+    filename="$(basename "$1")"
+    if [ -h "$filename" ]; then
+        follow_symlink "$(readlink "$filename")"
+    else
+        echo "$(pwd -P)/$filename"
+    fi
+}
+
+show_help () {
+    echo "Usage: `basename $0` [flags] file [args]
+
+    -h | --help       Print this help and exit
+    -flag             Passes configuration flags to be used on startup" >&2
+}
+
+SELF=$(follow_symlink "$0")
+LFE_PROGNAME=$(echo "$0" | sed 's/.*\///') # Basically basename
+LFE_BINDIR=$(dirname "$SELF")
+LFE_ROOTDIR=$(dirname "$LFE_BINDIR")
+
+export LFE_ROOTDIR
+export LFE_BINDIR
+export LFE_PROGNAME
+
+# Set which emulator to use, the default is erl.
+emulator=${LFESCRIPT_EMULATOR-"erl"}
+
+# Collect any script options starting with '-' upto the script name.
+# Valid script options are only flags without arguments.
+
+i="$#"                          # Counter
+
+while [ "$i" -gt 0 ]; do
+    case "$1" in
+        -h | --help) # Help
+            $(show_help)
+            exit 1 ;;
+        -*)          # Flags
+            arg=`echo $1 | sed 's/^-//'`
+            set -- "$@" "$arg"
+            shift ; i=`expr $i - 1`
+            ;;
+        *)      # Plain argument
+            break ;;
+    esac
+done
+
+# Get the scriptname.
+scriptname="$1"
+
+# Split options and scriptname/args.
+set -- "$@" "-extra"
+
+# Step over the args section adding them to the end.
+while [ "$i" -gt 0 ]; do
+    set -- "$@" "$1"
+    shift ; i=`expr $i - 1`
+done
+
+# Try to find an explicit emulator flag option line in line 2 or 3 of
+# script file.
+
+# Read the first three lines of the script file.
+if [ -z "$scriptname" ]; then
+    echo "lfescript: Missing filename" ; exit 127
+elif [ -f "$scriptname" -a -r "$scriptname"  ]; then
+    { read line1; read line2; read line3; } < "$scriptname"
+else
+    echo "lfescript: Failed to open file: $scriptname" ; exit 127
+fi
+
+# Search for explicit emulator flag option line.
+shebangs=$(expr "$line2" : '^;;! *\(.*\)')
+if [ -z "$shebangs" ] ; then shebangs=$(expr "$line3" : '^;;! *\(.*\)') ; fi
+
+# Done, now just run the emulator.
+# The order of precedence for LFE libraries is as follows:
+# 1) The LFE_ROOTDIR for the current bin/lfe being executed is unusurpable;
+#    allowing anything else would leave LFE open to instabilities where it
+#    could be executed with libraries of a different release.
+# 2) A user/developer should be allowed to override anything else by updating
+#    ERL_LIBS as they see fit.
+# 3) A project's libraries (current directory) should be loaded automatically,
+#    if they exist, but not override the previous two.
+# 4) If a default library is installed in ~/.lfe/libs, then that will be added
+#    last, in the event that the sought library is not picked up in any of the
+#    other locations.
+#
+# Note that ERL_LIBS will find *either* an ebin subdir *or* lib subdir
+
+# Find application ebin directories in lib if lib exists.
+
+find_libs () {
+    if [ -d "$1" ]; then
+	echo $(find "$1" -maxdepth 1 -mindepth 1 -exec printf "%s:" {} \;)
+    fi
+}
+
+# The following works for rebar and erl.mk
+PROJ_LIBS=$(find_libs "./deps")
+# The following works for rebar3
+if [ -d "$REBAR_DEPS_DIR" ]; then
+    # Use $REBAR_DEPS_DIR if set...
+    R3_PROJ_LIBS=$(find_libs "$REBAR_DEPS_DIR")
+else
+    # ... otherwise provide a sensible default
+    R3_PROJ_LIBS=$(find_libs "./_build/${REBAR_PROFILE:-default}/deps"):$(find_libs "./_build/${REBAR_PROFILE:-default}/lib")
+fi
+LFE_HOME_LIBS=$(find_libs "$HOME"/.lfe/lib)
+ALL_LIBS="$LFE_ROOTDIR":"$ERL_LIBS":"$PROJ_LIBS""$R3_PROJ_LIBS""$LFE_HOME_LIBS"
+
+ERL_LIBS="$ALL_LIBS" exec "$emulator" +B -boot start_clean $shebangs "-noshell" "-run" "lfescript" "start" "$@"

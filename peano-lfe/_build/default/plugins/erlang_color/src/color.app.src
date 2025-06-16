@@ -1,0 +1,12 @@
+{application,color,
+             [{description,"ANSI colors for your Erlang"},
+              {vsn,"1.0.0"},
+              {modules,[color]},
+              {registered,[]},
+              {applications,[kernel,stdlib]},
+              {env,[]},
+              {pkg_name,erlang_color},
+              {maintainers,["Julian Duque","Duncan McGreggor"]},
+              {licenses,["MIT"]},
+              {links,[{"GitHub","https://github.com/julianduque/erlang-color"},
+                      {"Hex","https://hex.pm/packages/erlang_color"}]}]}.

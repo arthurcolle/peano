@@ -1,0 +1,183 @@
+;;;; Peano arithmetic include file
+;;;; Provides imports for all peano modules
+
+;; Core modules
+(import (from peano
+              (zero 0) (s 1) (p 1) 
+              (zero? 1) (eq 2)
+              (nat->peano 1) (peano->nat 1)
+              (lt 2) (gt 2) (lte 2) (gte 2)
+              (min 2) (max 2))
+        (from arithmetic
+              (add 2) (mult 2) (pow 2)
+              (sub 2) (div 2) (mod 2)
+              (fact 1) (fib 1) (gcd 2) (prime? 1))
+        (from pairs
+              (pair 2) (first 1) (second 1)
+              (triple 3) (triple-first 1) (triple-second 1) (triple-third 1))
+        (from lists
+              (nil 0) (cons 2) (head 1) (tail 1)
+              (length 1) (nth 2) (append 2) (reverse 1)
+              (map 2) (filter 2) (foldl 3) (foldr 3)
+              (member? 2) (find 2))
+        (from types
+              (make-typed 2) (type-of 1) (value-of 1)
+              (make-number 1) (make-boolean 1) (make-pair 2)
+              (make-list 1) (make-symbol 1) (make-string 1)
+              (make-tree-node 2) (make-graph 2) (make-hypergraph 2)
+              (number? 1) (boolean? 1) (pair? 1) (list? 1)
+              (symbol? 1) (string? 1))
+        (from adt
+              (make-adt 2) (adt-constructor 1) (adt-data 1)
+              (none 0) (some 1) (is-none? 1) (is-some? 1)
+              (some-value 1) (option-map 2) (option-bind 2)
+              (left 1) (right 1) (is-left? 1) (is-right? 1)
+              (left-value 1) (right-value 1) (either-map 2) (either-bind 2)
+              (leaf 1) (node 3) (is-leaf? 1) (is-node? 1)
+              (tree-map 2) (tree-fold 3)
+              (bool-false 0) (bool-true 0) (is-false? 1) (is-true? 1))
+        (from tuples
+              (tuple 0) (tuple-from-list 1) (tuple-arity 1)
+              (tuple-ref 2) (tuple-set 3) (tuple->list 1)
+              (tuple-map 2) (tuple-fold 3) (tuple-zip 2) (tuple-eq? 2))
+        (from records
+              (make-record 2) (record-get 2) (record-set 3)
+              (record-update 2) (record-eq? 2)
+              (record-field-names 1) (record-field-values 1)
+              (make-person 2) (make-point 2))
+        (from vectors
+              (vector-empty 0) (vector-from-list 1)
+              (vector-ref 2) (vector-set 3) (vector-append 2)
+              (vector->list 1) (vector-map 2) (vector-fold 3)
+              (vector-size 1) (make-vector 2) (vector-slice 3))
+        (from maps
+              (map-empty 0) (map-insert 3) (map-get 2)
+              (map-has-key? 2) (map-remove 2)
+              (map->list 1) (map-from-list 1)
+              (map-size 1) (map-map 2)
+              (map-keys 1) (map-values 1) (map-merge 2))
+        (from sets
+              (set-empty 0) (set-from-list 1)
+              (set-add 2) (set-remove 2) (set-member? 2)
+              (set-size 1) (set->list 1)
+              (set-union 2) (set-intersection 2) (set-difference 2)
+              (set-subset? 2) (set-eq? 2)
+              (set-map 2) (set-filter 2) (set-fold 3)
+              (set-powerset 1) (set-product 2))
+        (from ordinals
+              (ord-zero 0) (ord-finite 1) (omega 0)
+              (ord-lt 2) (ord-eq 2) (ord-add 2) (ord-mult 2)
+              (ord-mult-nat 2) (omega-to 1) (goodstein-step 2))
+        (from hypergraphs
+              (empty-hypergraph 0) (add-node 2) (add-hyperedge 2)
+              (incident-edges 2) (node-degree 2) (neighbors 2)
+              (k-uniform? 2) (dual 1) (line-graph 1)
+              (connected-components 1))
+        (from compute
+              (make-computation-state 3) (execute-instruction 2)
+              (make-proof-step 3) (make-grammar 4)
+              (demo-structures 0) (transfinite-rec 3)
+              (ordinal-arithmetic-demo 0) (universal-function 2))
+        (from datatypes
+              (make-expr-literal 1) (make-expr-add 2) (make-expr-mult 2)
+              (eval-expr 1)
+              (json-null 0) (json-bool 1) (json-number 1)
+              (json-string 1) (json-array 1) (json-object 1)
+              (make-table 3) (table-select 2)
+              (make-state-machine 3) (demo-all-types 0))
+        (from fundamentals
+              ;; Integers
+              (make-integer 2) (integer? 1)
+              (integer-sign 1) (integer-magnitude 1)
+              (integer-negate 1) (integer-abs 1)
+              (integer-add 2) (integer-sub 2)
+              (integer-mult 2) (integer-div 2)
+              (integer-compare 2) (integer-eq? 2)
+              (integer->nat 1) (nat->integer 1)
+              ;; Rationals
+              (make-rational 2) (rational? 1)
+              (rational-numerator 1) (rational-denominator 1)
+              (rational-simplify 1) (rational-add 2)
+              (rational-sub 2) (rational-mult 2) (rational-div 2)
+              (rational-eq? 2) (rational-lt? 2)
+              (rational->integer 1) (integer->rational 1)
+              ;; Characters
+              (make-char 1) (char? 1)
+              (char->code 1) (code->char 1)
+              (char-upcase 1) (char-downcase 1)
+              (char-alpha? 1) (char-digit? 1)
+              (char-whitespace? 1) (char-eq? 2) (char-lt? 2)
+              ;; Bytes
+              (make-byte 1) (byte? 1)
+              (byte-and 2) (byte-or 2) (byte-xor 2) (byte-not 1)
+              (byte-shift-left 2) (byte-shift-right 2)
+              (bytes->nat 1) (nat->bytes 2)
+              ;; Fixed-point
+              (make-fixed 3) (fixed? 1)
+              (fixed-integer-part 1) (fixed-fractional-part 1)
+              (fixed-scale 1) (fixed-add 2) (fixed-sub 2)
+              (fixed-mult 2) (fixed-div 2) (fixed-round 2)
+              ;; Intervals
+              (make-interval 4) (interval? 1)
+              (interval-lower 1) (interval-upper 1)
+              (interval-closed-lower? 1) (interval-closed-upper? 1)
+              (interval-contains? 2) (interval-empty? 1)
+              (interval-intersect 2) (interval-union 2)
+              (interval-width 1)
+              ;; Ranges
+              (make-range 3) (range? 1)
+              (range-start 1) (range-end 1) (range-step 1)
+              (range->list 1) (range-contains? 2)
+              (range-length 1) (range-nth 2) (range-map 2)
+              ;; Dates
+              (make-date 3) (date? 1)
+              (date-year 1) (date-month 1) (date-day 1)
+              (date-valid? 1) (date-leap-year? 1)
+              (date-add-days 2) (date-diff 2)
+              (date-day-of-week 1) (date-compare 2)
+              ;; Times
+              (make-time 4) (time? 1)
+              (time-hours 1) (time-minutes 1)
+              (time-seconds 1) (time-nanos 1)
+              (time-valid? 1) (time-add 2) (time-diff 2)
+              (time-to-seconds 1) (seconds-to-time 1)
+              ;; DateTimes
+              (make-datetime 3) (datetime? 1)
+              (datetime-date 1) (datetime-time 1)
+              (datetime-timezone 1) (datetime-to-utc 1)
+              (datetime-add-duration 2) (datetime-compare 2)
+              ;; Durations
+              (make-duration 5) (duration? 1)
+              (duration-days 1) (duration-hours 1)
+              (duration-minutes 1) (duration-seconds 1)
+              (duration-nanos 1) (duration-add 2)
+              (duration-sub 2) (duration-mult 2)
+              (duration-to-seconds 1)
+              ;; Complex numbers
+              (make-complex 2) (complex? 1)
+              (complex-real 1) (complex-imag 1)
+              (complex-add 2) (complex-sub 2)
+              (complex-mult 2) (complex-div 2)
+              (complex-conjugate 1) (complex-magnitude 1)
+              (complex-argument 1)
+              ;; Matrices
+              (make-matrix 3) (matrix? 1)
+              (matrix-rows 1) (matrix-cols 1)
+              (matrix-ref 3) (matrix-set 4)
+              (matrix-add 2) (matrix-mult 2)
+              (matrix-transpose 1) (matrix-identity 1)
+              (matrix-from-lists 1)
+              ;; Lazy sequences
+              (make-lazy-seq 3) (lazy-seq? 1)
+              (lazy-head 1) (lazy-tail 1)
+              (lazy-take 2) (lazy-drop 2)
+              (lazy-map 2) (lazy-filter 2)
+              (lazy-concat 2) (lazy-iterate 2)
+              (lazy-repeat 1) (lazy-range 3)
+              ;; Bit vectors
+              (make-bitvector 2) (bitvector? 1)
+              (bitvector-length 1) (bitvector-ref 2)
+              (bitvector-set 3) (bitvector-clear 2)
+              (bitvector-and 2) (bitvector-or 2)
+              (bitvector-xor 2) (bitvector-not 1)
+              (bitvector-count 1)))
