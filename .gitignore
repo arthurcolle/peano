@@ -1,0 +1,13 @@
+# Erlang/LFE
+*.beam
+erl_crash.dump
+.rebar3
+_build/
+_checkouts/
+_vendor/
+.rebar/
+rebar3.crashdump
+*~
+
+# Dependencies
+deps/
